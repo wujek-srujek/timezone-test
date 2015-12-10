@@ -1,0 +1,58 @@
+ext {
+    javaVersion = JavaVersion.VERSION_1_8
+    gradleVersion = '2.9'
+}
+
+assert JavaVersion.current().java8Compatible:
+        "At least Java $javaVersion is required, current JVM is ${JavaVersion.current()}"
+
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+
+defaultTasks = ['clean', 'build']
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.3.0.RELEASE'
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.projectlombok:lombok:1.16.6'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile 'org.springframework.boot:spring-boot-starter'
+
+    runtime 'org.postgresql:postgresql'
+    runtime 'org.flywaydb:flyway-core'
+}
+
+targetCompatibility = javaVersion
+sourceCompatibility = targetCompatibility
+
+idea {
+    project {
+        languageLevel = javaVersion
+    }
+}
+
+tasks.withType(AbstractCompile) {
+    options.compilerArgs << '-parameters'
+    options.deprecation = true
+    options.debug = true
+    options.debugOptions.debugLevel = 'source,lines,vars'
+    options.encoding = java.nio.charset.StandardCharsets.UTF_8.name()
+}
+
+task wrapper(type: Wrapper) {
+    description = 'Defines the common gradle distribution for this project.'
+    gradleVersion = project.gradleVersion
+}
